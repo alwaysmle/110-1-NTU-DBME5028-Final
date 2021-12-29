@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
 
 
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
 import torch.nn.functional as F 
-from torchvision.models import resnet50,efficientnet_b2
+from torchvision.models import resnet50,efficientnet_b2,resnet34
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,12 +15,18 @@ import csv
 import pandas as pd
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
-
+try:
+    from torchvision.transforms import GaussianBlur
+except ImportError:
+    from .gaussian_blur import GaussianBlur
+    T.GaussianBlur = GaussianBlur
 
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 combine = np.load("/home/alison/alison_1223/combine.npy", allow_pickle=True)
-
-
+#test = np.load("/home/alison/alison_1223/test.npy", allow_pickle=True)
+val_data_set1 = np.load('/home/alison/alison_1223/val_data_set1.npy', allow_pickle=True)
+val_data_set2 = np.load('/home/alison/alison_1223/val_data_set2.npy', allow_pickle=True)
+val_label = np.load('/home/alison/alison_1223/val_label.npy', allow_pickle=True)
 
 def same_seeds(seed):
     # Python built-in random module
@@ -43,32 +45,22 @@ same_seeds(42)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-# In[36]:
-
-
-
-try:
-    from torchvision.transforms import GaussianBlur
-except ImportError:
-    from .gaussian_blur import GaussianBlur
-    T.GaussianBlur = GaussianBlur
     
 imagenet_mean_std = [[0.485, 0.456, 0.406],[0.229, 0.224, 0.225]]
 
 class SimCLRTransform():
-    def __init__(self, image_size, mean_std=imagenet_mean_std, s=1):
+    def __init__(self, image_size, mean_std=imagenet_mean_std, s=0.8):
         image_size = 224 if image_size is None else image_size 
         self.transform = T.Compose([
             T.Lambda(lambda x: x.to(torch.float32)),
             T.Lambda(lambda x:  x/255. ),
-            T.RandomResizedCrop(image_size, scale=(0.2, 1.0)),
+            #T.RandomRotation(180,expand=False),
+            T.RandomResizedCrop(image_size, scale=(0.4, 1.0)),
             T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
             T.RandomApply([T.ColorJitter(0.8*s,0.8*s,0.8*s,0.2*s)], p=0.8),
             T.RandomGrayscale(p=0.2),
             T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
-            #T.ToTensor(),
-            # We blur the image 50% of the time using a Gaussian kernel. We randomly sample σ ∈ [0.1, 2.0], and the kernel size is set to be 10% of the image height/width.
-            #T.Normalize(*mean_std)
         ])
     def __call__(self, x):
         x1 = self.transform(x)
@@ -97,9 +89,6 @@ class CustomTensorDataset(TensorDataset):
 
     def __len__(self):
         return len(self.tensors)
-
-
-# In[38]:
 
 
 
@@ -231,14 +220,16 @@ class SimSiam(nn.Module):
         z2 = f(x2)
         z3 = f(x3)
         p1, p2, p3 = h(z1), h(z2), h(z3)
-        L = D(p1, z2) / 2 + D(p2, z1) / 2 + D(p1, z3) / 2 + D(p3, z1) / 2
+        L = D(p1, z2) / 2 + D(p2, z1) / 2  # + D(p1, z3) / 2 + D(p3, z1) / 2
         return  L
     def get_sim(self, x1, x2):
         f = self.encoder
         z1, z2 = f(x1), f(x2)
         L = D(z1, z2,version='val') / 2
         return L
-
+    def get_embed(self, x1):
+        f = self.encoder
+        return f(x1)
 
 
 model = SimSiam()
@@ -261,9 +252,48 @@ optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight
 # In[47]:
 
 
+class SimCLRTransform_test():
+    def __init__(self, image_size, mean_std=imagenet_mean_std, s=1.0):
+        image_size = 224 if image_size is None else image_size 
+        self.transform = T.Compose([
+            T.Lambda(lambda x: x.to(torch.float32)),
+            T.Lambda(lambda x:  x/255. ),
+            #T.Normalize(*mean_std)
+        ])
+    def __call__(self, x):
+        x1 = self.transform(x)
+        return x1
+      
+class CustomTensorDataset_test(TensorDataset):
+    """TensorDataset with support of transforms.
+    """
+    def __init__(self, tensors1,tensors2):
+        self.tensors1 = tensors1
+        self.tensors2 = tensors2
+        if tensors2.shape[-1] == 3:
+            self.tensors1 = tensors1.permute(0, 3, 1, 2)
+            self.tensors2 = tensors2.permute(0, 3, 1, 2)
+        self.transforms = SimCLRTransform_test(image_size=256)
+        
+    def __getitem__(self, index):
+        x1 = self.tensors1[index]
+        x1 = self.transforms(x1)
+        x2 = self.tensors2[index]
+        x2 = self.transforms(x2)
+        return index,x1,x2
+
+    def __len__(self):
+        return len(self.tensors2)
+
+v1 = torch.from_numpy(val_data_set1)
+v2 = torch.from_numpy(val_data_set2)
+test_dataset = CustomTensorDataset_test(v1,v2)
+test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
+
+
 min_val_loss = 100
 min_epoch = 0
-epochs = 30
+epochs = 10
 
 for epoch in range(epochs):
     train_loss = 0
@@ -285,13 +315,35 @@ for epoch in range(epochs):
     train_loss = train_loss/len(train_dataloader.dataset)
     print('Epoch: {} \tTraining Loss: {:.6f} \t'.format(epoch, train_loss))
 
-
-    save_name = 'res_no_nor'+str(epoch)+'.pt'
+    model.eval()
+    output_arr = []  
+    count = 0
+    with torch.no_grad(): 
+        for idx,img1, img2 in test_dataloader:
+            img1, img2, = img1.to(device), img2.to(device)
+            loss = model.get_sim(img1, img2)
+            count += 1
+            output_arr = np.append(output_arr,loss.to('cpu').numpy(),axis=0)
+    sim_arr = output_arr
+    max_num = 0
+    max_ses = 0
+    for k in range (-999,1000):
+        low =  k/1000
+        sim_output=sim_arr.copy()
+        count = 0 
+        for i in range(len(sim_output)):
+            if(sim_output[i]<low):
+                sim_output[i] = 1
+                if (sim_output[i] == val_label[i]):
+                    count += 1
+            else:
+                sim_output[i] = 0
+                if (sim_output[i] == val_label[i]):
+                    count += 1
+        if (max_num < count/len(sim_output)):
+            max_num = count/len(sim_output)
+            max_ses = low
+    print(max_ses,max_num)
+    save_name = 'DOUBLE'+str(epoch)+'.pt'
     torch.save(model,save_name)
-
-
-# In[ ]:
-
-
-
-
+print(save_name)
