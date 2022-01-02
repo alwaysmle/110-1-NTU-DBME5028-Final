@@ -3,6 +3,7 @@
 please download best.pt model using download.sh and put in the same folder as train.py and inference.py
 ## Train model
 train.py: <br>
+Example : python "/data1/home/8B07/Anthony/simsiam/train.py" --data /data1/home/8B07/Anthony/simsiam/ 
 #### first argument --data: input the folder of train and test <br>
 ## Export csv
 Inference.py :  <br>
