@@ -1,4 +1,4 @@
-# This is the midterm project of DBME 5028
+# This is the final project of DBME 5028
 ## Download model
 please download best.pt model using download.sh and put in the same folder as train.py and inference.py
 ## Train model
