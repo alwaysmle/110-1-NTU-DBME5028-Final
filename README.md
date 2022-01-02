@@ -1,8 +1,8 @@
 # This is the final project of DBME 5028
 ## How to use
-(1) clone the github repository 
-(2) type sh download.sh to download model (best.pt)
-(3) execute train.py or inferece.py 
+(1) clone the github repository <br>
+(2) type sh download.sh to download model (best.pt)<br>
+(3) execute train.py or inferece.py <br>
 please download best.pt model using download.sh and put in the same folder as train.py and inference.py
 ## Train model
 train.py: <br>
