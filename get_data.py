@@ -21,6 +21,9 @@ def get_dataset(base_path):
         combine_numpy.append(im)
         combine_name.append(id_name)
         #print(len(combine_numpy)) 
+    combine_numpy = np.array(combine_numpy)
+    combine_name = np.array(combine_name)
+    print('get training data',combine_numpy.shape,combine_name.shape)
     return combine_numpy,combine_name
     #np.save('combine',combine_numpy)
     #np.save('combine_id',combine_name)
@@ -42,4 +45,22 @@ def get_val_data(base_path,combine,combine_name):
     val_data_set1 = np.array(val_data_set1).squeeze()
     val_data_set2 = np.array(val_data_set2).squeeze()
     val_label = np.array(val_label).astype('int')
+    print('get validation data',val_data_set1.shape)
     return   val_data_set1,val_data_set2,val_label
+
+def get_test_data(base_path):
+    #read combine dataset
+    test_dir = os.path.join(base_path,  'test')
+    test_names = glob.glob(os.path.join(test_dir, '*') )
+    combine_numpy = []
+    combine_name = []
+    for image_path in test_names:
+        id_name = image_path[-16:-4]
+        im = imageio.imread(image_path)
+        combine_numpy.append(im)
+        combine_name.append(id_name)
+        #print(len(combine_numpy)) 
+    combine_numpy = np.array(combine_numpy)
+    combine_name = np.array(combine_name)
+    print('get training data',combine_numpy.shape,combine_name.shape)
+    return combine_numpy,combine_name

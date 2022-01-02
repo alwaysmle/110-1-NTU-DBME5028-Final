@@ -29,7 +29,7 @@ class SimCLRTransform():
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
             T.RandomApply([T.ColorJitter(0.8*s,0.8*s,0.8*s,0.2*s)], p=0.8),
-            T.RandomGrayscale(p=0.2),
+            T.RandomGrayscale(p=0.5),
             T.RandomApply([T.GaussianBlur(kernel_size=image_size//20*2+1, sigma=(0.1, 2.0))], p=0.5),
         ])
     def __call__(self, x):
@@ -171,7 +171,7 @@ class SimSiam(nn.Module):
 
 
 class SimCLRTransform_test():
-    def __init__(self, image_size, mean_std=imagenet_mean_std, s=1.0):
+    def __init__(self, image_size,  s=1.0):
         image_size = 224 if image_size is None else image_size 
         self.transform = T.Compose([
             T.Lambda(lambda x: x.to(torch.float32)),
@@ -200,3 +200,41 @@ class CustomTensorDataset_test(TensorDataset):
 
     def __len__(self):
         return len(self.tensors2)
+class inference():
+    def getSimilarityMatrix(self,a1,a2):
+        cos_sim = -np.dot(a1,a2) / (np.linalg.norm(a1) * np.linalg.norm(a2))
+        return cos_sim
+
+    def get_similarity(self,base_path,embed_arr,test_id):
+        query_csv = os.path.join(base_path,  'queries.csv')
+        query_csv_file = pd.read_csv(query_csv,header=None)
+        output_arr = []  
+        for i in query_csv_file.values:
+            img1 = i[0][:-4]
+            img2 = i[1][:-4]
+            out1 = np.where(img1==test_id)[0][0]
+            out2 = np.where(img2==test_id)[0][0]
+            output_arr =  np.append(output_arr,self.getSimilarityMatrix(embed_arr[out1],embed_arr[out2]))
+        return output_arr
+    def result_csv(self,base_path,output_arr):
+        thres = -0.275
+        count = 0 
+        query_csv = os.path.join(base_path,  'queries.csv')
+        count = 0 
+        sim_output=output_arr.copy()
+        for i in range(len(sim_output)):
+            if(sim_output[i]<thres):
+                sim_output[i] = 1
+            else:
+                sim_output[i] = 0
+                count += 1
+        print(thres,"0 percent",count/len(sim_output))
+        csv_name = base_path+'result.csv'
+        count = 0
+        query_csv_file = pd.read_csv(query_csv,header=None)
+        with open(csv_name, 'w', newline='') as result:
+            writer = csv.writer(result)
+            writer.writerow(['query', 'prediction'])
+            for i in query_csv_file.values:
+                writer.writerow([i[0][:-4]+'_'+i[1][:-4], int(sim_output[count])])
+                count+=1
