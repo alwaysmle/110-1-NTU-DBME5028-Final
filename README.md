@@ -3,7 +3,7 @@
 (1) clone the github repository <br>
 (2) type sh download.sh to download model (best.pt)<br>
 (3) execute train.py or inferece.py <br>
-please download best.pt model using download.sh and put in the same folder as train.py and inference.py
+
 ## Train model
 train.py: <br>
 #### first argument --data: input the folder of train and test <br>
