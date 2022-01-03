@@ -2,8 +2,9 @@
 ## How to use
 (1) clone the github repository (include all the .py file in the directory) <br>
 (2) type sh download.sh to download model (best.pt)<br>
-(3-a)execute train.py, it will output the model weight of each epoch <br> 
-(3-b)execute inferece.py, it will output a file called result.csv  <br>
+(3) put the training image folder and testing image folder in the main directory <br>
+(4-a) execute train.py, it will output the model weight of each epoch <br> 
+(4-b) execute inferece.py, it will output a file called result.csv  <br>
 
 ## Train model
 train.py: <br>
