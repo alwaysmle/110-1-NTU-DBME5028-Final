@@ -1,4 +1,5 @@
 # Most of the model is modified from the SimTriplet, https://github.com/hrlblab/SimTriplet
+# Line 17-41 75-161
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
