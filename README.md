@@ -20,6 +20,6 @@ Example : python "/data1/home/8B07/Anthony/simsiam/inference.py" --data /data1/h
 ## Package requirements:
 No specific package is required in the project
 
-## Code 
+## Code Simlarity
 Our model is based on Simsiam and SimTriplet, https://github.com/hrlblab/SimTriplet <br>
 Im my_model.py, Line 17-41 75-161 will be similar to the https://github.com/hrlblab/SimTriplet/blob/main/models/simsiam.py
