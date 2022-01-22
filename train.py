@@ -13,7 +13,7 @@ import pandas as pd
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler,
                               TensorDataset)
 
-from get_data import get_dataset,get_val_data
+from get_data import get_dataset,get_val_data,get_data_whole_slide
 from my_model import CustomTensorDataset,CustomTensorDataset_test,SimSiam
 import argparse
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
@@ -34,26 +34,26 @@ def same_seeds(seed):
 def main(parser):
     print('start')
     batch_size = 64
-    combine_numpy,combine_name = get_dataset(parser.data)
+    combine_numpy = get_data_whole_slide(parser.data,256,256,256)#get_dataset(parser.data)
     x = torch.from_numpy(combine_numpy)
     train_dataset = CustomTensorDataset(x,train=True)
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SimSiam()
+    model = SimSiam(backbone = 'resnet34')
     model.to(device)
 
-    epochs = 10
+    epochs = 100
     base_lr = 0.05
     lr= base_lr *batch_size / 256 
     momentum = 0.9
     weight_decay =  0.0001
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-    val_data_set1,val_data_set2,val_label = get_val_data(parser.data,combine_numpy,combine_name)
-    v1 = torch.from_numpy(val_data_set1)
-    v2 = torch.from_numpy(val_data_set2)
-    test_dataset = CustomTensorDataset_test(v1,v2)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
+    #val_data_set1,val_data_set2,val_label = get_val_data(parser.data,combine_numpy,combine_name)
+    #v1 = torch.from_numpy(val_data_set1)
+    #v2 = torch.from_numpy(val_data_set2)
+    #test_dataset = CustomTensorDataset_test(v1,v2)
+    #test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
     min_val_loss = 100
     min_epoch = 0
 
@@ -70,7 +70,7 @@ def main(parser):
             #print(train_loss)
         train_loss = train_loss/len(train_dataloader.dataset)
         print('Epoch: {} \tTraining Loss: {:.6f} \t'.format(epoch, train_loss))
-
+        '''
         model.eval()
         output_arr = []  
         count = 0
@@ -100,6 +100,7 @@ def main(parser):
                 max_num = count/len(sim_output)
                 max_ses = low
         print(max_ses,max_num)
+        '''
         save_name = parser.data+'DOUBLE'+str(epoch)+'.pt'
         torch.save(model,save_name)
     print(save_name)

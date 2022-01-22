@@ -138,11 +138,13 @@ class prediction_MLP(nn.Module):
         return x 
 
 class SimSiam(nn.Module):
-    def __init__(self, backbone=resnet50(pretrained = True)):
+    def __init__(self,backbone):
         super().__init__()
-
-        self.backbone = backbone
-        self.projector = projection_MLP(backbone.fc.out_features)
+        if(backbone=='resnet34'):
+            self.backbone = resnet34(pretrained = True)
+        if(backbone=='resnet50'):
+            self.backbone = resnet50(pretrained = True)
+        self.projector = projection_MLP(self.backbone.fc.out_features)
         self.encoder = nn.Sequential( # f encoder
             self.backbone,
             self.projector
