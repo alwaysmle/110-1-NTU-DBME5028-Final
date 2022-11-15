@@ -1,4 +1,6 @@
-# This is the final project of DBME 5028
+# Unsupervised Histology Image Clustering
+![Histology query](https://user-images.githubusercontent.com/29053630/201796883-2a6eb299-45f1-4e7a-9c72-5270f67d5052.jpg)
+
 ## How to use
 (1) clone the github repository (include all the .py file in the directory) <br>
 (2) type sh download.sh to download model (best.pt)<br>
