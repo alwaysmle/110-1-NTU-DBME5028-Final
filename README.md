@@ -1,5 +1,7 @@
 # Unsupervised Histology Image Clustering
-![Histology query](https://user-images.githubusercontent.com/29053630/201796883-2a6eb299-45f1-4e7a-9c72-5270f67d5052.jpg)
+![3](https://user-images.githubusercontent.com/29053630/201796982-fc8992f4-cecf-455f-bd3f-137cd6ed4020.jpg)
+
+![Histology query 2](https://user-images.githubusercontent.com/29053630/201796963-8e99bbe0-db3c-4776-be22-d98ac1e8054f.jpg)
 
 ## How to use
 (1) clone the github repository (include all the .py file in the directory) <br>
