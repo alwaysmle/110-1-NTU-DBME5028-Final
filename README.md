@@ -1,6 +1,7 @@
 # Unsupervised Histology Image Clustering
 
-<td style="text-align: center; vertical-align: middle;"><img src="(https://user-images.githubusercontent.com/29053630/201796982-fc8992f4-cecf-455f-bd3f-137cd6ed4020.jpg" width="600"/>
+
+<td style="text-align: center; vertical-align: middle;"><img src="https://user-images.githubusercontent.com/29053630/201796982-fc8992f4-cecf-455f-bd3f-137cd6ed4020.jpg" width="700"/>
 
 ## How to use
 (1) clone the github repository (include all the .py file in the directory) <br>
@@ -10,8 +11,10 @@
 (4-b) execute inferece.py, it will output a file called result.csv  <br>
 
 <td style="text-align: center; vertical-align: middle;"><img src="https://user-images.githubusercontent.com/29053630/201796963-8e99bbe0-db3c-4776-be22-d98ac1e8054f.jpg" width="600"/>
+  
 ## Train model
 train.py: <br>
+  
 #### first argument --data: input the folder of train and test <br>
 Example : python "/data1/home/8B07/Anthony/simsiam/train.py" --data /data1/home/8B07/Anthony/simsiam/ 
 ## Export csv
