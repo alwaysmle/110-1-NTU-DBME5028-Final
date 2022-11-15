@@ -1,6 +1,6 @@
 # Unsupervised Histology Image Clustering
-![3](https://user-images.githubusercontent.com/29053630/201796982-fc8992f4-cecf-455f-bd3f-137cd6ed4020.jpg)
 
+<td style="text-align: center; vertical-align: middle;"><img src="(https://user-images.githubusercontent.com/29053630/201796982-fc8992f4-cecf-455f-bd3f-137cd6ed4020.jpg" width="600"/>
 
 ## How to use
 (1) clone the github repository (include all the .py file in the directory) <br>
@@ -9,8 +9,7 @@
 (4-a) execute train.py, it will output the model weight of each epoch <br> 
 (4-b) execute inferece.py, it will output a file called result.csv  <br>
 
-![Histology query 2](https://user-images.githubusercontent.com/29053630/201796963-8e99bbe0-db3c-4776-be22-d98ac1e8054f.jpg)
-
+<td style="text-align: center; vertical-align: middle;"><img src="https://user-images.githubusercontent.com/29053630/201796963-8e99bbe0-db3c-4776-be22-d98ac1e8054f.jpg" width="600"/>
 ## Train model
 train.py: <br>
 #### first argument --data: input the folder of train and test <br>
